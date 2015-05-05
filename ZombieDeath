@@ -1,0 +1,70 @@
+package me.anderson.pvp.Zombie;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Zombie;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+public class ZombieDeath implements Listener {
+
+	@EventHandler
+	public void on(EntityDeathEvent e) {
+		
+		if(e.getEntity() instanceof Zombie) {
+			
+			Zombie zombie =  (Zombie) e.getEntity();
+			
+			e.setDroppedExp(0);
+			
+			Bukkit.getScheduler().cancelAllTasks();
+			
+			if(zombie.getKiller() instanceof Player) {
+				
+				Player p = (Player) zombie.getKiller();
+				
+				p.sendMessage("§aYou won! Keep it up :)");
+				p.playSound(p.getLocation(), Sound.LEVEL_UP, 1, 1);
+				
+				World w = Bukkit.getWorld("Practice");
+				
+				Location loc = new Location(w, 48, 4, -155);
+				
+				//Randim Yaw and Pitch was added
+				loc.setYaw(0);
+				loc.setPitch(0);
+				
+				p.teleport(loc);
+				
+				p.setHealth(20);
+				p.getInventory().clear();
+				p.getInventory().addItem(selector());
+			}
+		}
+	}
+	
+	@EventHandler
+	public void on(CreatureSpawnEvent e) {
+		
+		if(!(e.getEntity() instanceof Zombie)) {
+			
+			e.setCancelled(true);
+		}
+	}
+	
+	private ItemStack selector() {
+		ItemStack e = new ItemStack(Material.EMERALD);
+		ItemMeta meta = e.getItemMeta();
+		meta.setDisplayName("§aPractice");
+		e.setItemMeta(meta);
+		return e;
+	}
+}

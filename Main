@@ -1,0 +1,42 @@
+package me.anderson.pvp;
+
+import me.anderson.pvp.PVPGui.PVPClicks;
+import me.anderson.pvp.Player.PlayerDeath;
+import me.anderson.pvp.Player.PlayerInteract;
+import me.anderson.pvp.Player.PlayerJoin;
+import me.anderson.pvp.Player.PlayerRespawn;
+import me.anderson.pvp.Zombie.ZombieDamage;
+import me.anderson.pvp.Zombie.ZombieDeath;
+import me.anderson.pvp.Zombie.ZombieTarget;
+
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.java.JavaPlugin;
+
+public class Main extends JavaPlugin {
+	
+	public static Main instance;
+	
+	@Override
+	public void onEnable() {
+		
+		instance = this;
+		
+		PluginManager pm = Bukkit.getServer().getPluginManager();
+		
+		pm.registerEvents(new PlayerJoin(), (this));
+		pm.registerEvents(new PlayerInteract(), (this));
+		pm.registerEvents(new PlayerDeath(), (this));
+		pm.registerEvents(new PlayerRespawn(), (this));
+		pm.registerEvents(new ZombieDamage(), (this));
+		pm.registerEvents(new ZombieDeath(), (this));
+		pm.registerEvents(new ZombieTarget(), (this));
+		pm.registerEvents(new PVPClicks(), (this));
+		
+		Scoreboards.makeScoreboard();
+	}
+	
+	public static Main getInstance() {
+		return instance;
+	}
+}

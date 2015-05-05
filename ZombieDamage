@@ -1,0 +1,97 @@
+package me.anderson.pvp.Zombie;
+
+import me.anderson.pvp.Main;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Zombie;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityCombustEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.inventory.ItemStack;
+
+public class ZombieDamage implements Listener {
+	
+	@EventHandler
+	public void on(EntityDamageEvent e) {
+		
+		if(e.getEntity() instanceof Zombie) {
+			
+			final Zombie zombie = (Zombie) e.getEntity();
+			
+			if(e.getCause() == DamageCause.FIRE_TICK || e.getCause() == DamageCause.FIRE) {
+				
+				final Location loc = new Location(Bukkit.getWorld("Practice"), 36, 3, -150);
+				loc.setY(0);
+				loc.setPitch(0);
+				
+				Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), new Runnable() {
+
+					@Override
+					public void run() {
+						
+						if(zombie.getFireTicks() > 0) {
+							
+							ZombieAI.navigateToWater(zombie, loc, 1);
+							
+						} else {
+							
+							Bukkit.getScheduler().cancelAllTasks();
+						}
+					}
+					
+				}, 20L, 20L);
+			}
+		}
+	}
+	@EventHandler
+	public void on(EntityDamageByEntityEvent e) {
+		
+		if(e.getEntity() instanceof Zombie) {
+			
+			final Zombie zombie = (Zombie) e.getEntity();
+			
+			if(e.getCause() == DamageCause.PROJECTILE) {
+				
+				if(e.getDamager() instanceof Arrow) {
+					
+					if(zombie.getFireTicks() <= 0) { 
+					
+						ZombieAI.makeStationary(zombie);
+						
+						zombie.getEquipment().setItemInHand(new ItemStack(Material.BOW));
+						
+						Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), new Runnable() {
+
+							@Override
+							public void run() {
+								
+								ZombieAI.shootArrow(zombie);
+								ZombieAI.makeMobile(zombie);
+								
+								zombie.getEquipment().setItemInHand(new ItemStack(Material.STONE_SWORD));
+								
+								Bukkit.getScheduler().cancelAllTasks();
+							}
+							
+						},  20l);
+					}
+				}
+			}
+		}
+	}
+	
+	@EventHandler
+	public void on(EntityCombustEvent e) {
+		
+		if(e.getEntity() instanceof Zombie) {
+			
+			e.setCancelled(true);
+		}
+	}
+}

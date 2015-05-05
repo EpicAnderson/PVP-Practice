@@ -1,0 +1,45 @@
+package me.anderson.pvp;
+
+import me.anderson.pvp.Zombie.ZombieAI;
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+
+public class PVPTask {
+
+	@SuppressWarnings("deprecation")
+	public static void startPVPTask(final LivingEntity ent, final Player p) {
+		
+		Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), new Runnable() {
+
+			@Override
+			public void run() {
+				
+				for(Entity zombie : p.getNearbyEntities(40, 10, 40)) {
+					
+					if(ZombieAI.getDistance(zombie.getLocation(), p.getLocation()) >= 2) {
+						
+						p.damage(3);
+					}
+				}
+				
+				for(Entity entity : ent.getNearbyEntities(40, 10, 40)) {
+					
+					if(entity instanceof Player) {
+						
+						Player p = (Player) entity;
+						
+						if(ZombieAI.getDistance(p.getLocation(), ent.getLocation()) > 7) {
+							
+							ent.launchProjectile(Arrow.class);
+						}
+					}
+				}
+			}
+			
+		}, 450l, 45l);
+	}
+}

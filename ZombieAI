@@ -1,0 +1,49 @@
+package me.anderson.pvp.Zombie;
+
+import org.bukkit.Location;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Zombie;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+
+public class ZombieAI {
+	
+	public static void shootArrow(Zombie zombie) {
+		
+		makeStationary(zombie);
+		
+		Arrow arrow = zombie.launchProjectile(Arrow.class);
+		
+		arrow.setVelocity(zombie.getEyeLocation().getDirection().multiply(2.5));
+		
+	}
+	
+	public static void makeMobile(LivingEntity entity) {
+		
+		entity.removePotionEffect(PotionEffectType.SLOW);
+	}
+	
+	public static void makeStationary(LivingEntity entity) {
+		
+		entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 999999999, 6));
+	}
+	
+	public static double getDistance(Location location, Location location2) {
+		
+		double distance = location.distance(location2);
+		return distance;
+	}
+	
+	public static void navigateToWater(LivingEntity entity, Location loc, double velocity) {
+
+		try {
+			Object entityLiving = ReflectionUtil.getMethod("getHandle", entity.getClass(), 0). invoke(entity);
+			Object nav = ReflectionUtil.getMethod("getNavigation", entityLiving.getClass(), 0).invoke(entityLiving);
+			ReflectionUtil.getMethod("a", nav.getClass(), 4).invoke(nav, loc.getX(), loc.getY(), loc.getBlockZ(), velocity);
+		
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
